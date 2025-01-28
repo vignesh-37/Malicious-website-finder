@@ -1,0 +1,12 @@
+2025-01-04 16:30:59 - INFO - http://fedresonline234455666.com - Phishing
+2025-01-04 16:31:21 - INFO - http://fedresonline234455666.com - Phishing
+2025-01-04 16:31:31 - INFO - http://fedresonline234455666.com - Phishing
+2025-01-04 16:32:13 - INFO - http://fedrafrsfsrderers.com - Phishing
+2025-01-08 20:23:31 - INFO - https://solanareward-event.com - Phishing
+2025-01-08 20:38:05 - INFO - http://www.eternalimages.com.au/index.php?option=com_content&view=article&id=53&Itemid=65 - Defacement
+2025-01-09 09:49:15 - INFO - http://www.eternalimages.com.au/index.php?option=com_content&view=article&id=53&Itemid=65 - Defacement
+2025-01-09 09:49:55 - INFO - https://allegrolokalnie.pl-id-880283.top/ - Phishing
+2025-01-21 18:49:43 - INFO - https://chatgpt.com/c/678e567b-7244-800c-891a-a048d083bebc - Defacement
+2025-01-21 18:50:32 - INFO - www.google.com - Malware
+2025-01-21 18:50:53 - INFO - https://google.com - Defacement
+2025-01-21 18:51:04 - INFO - https://Google.com - Benign

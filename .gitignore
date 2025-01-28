@@ -1,0 +1,6 @@
+# Ignore node_modules in the Backend directory
+# Backend/node_modules/
+node_modules/
+exe.txt
+malicious_url_dataset.csv
+test_dataset.csv
