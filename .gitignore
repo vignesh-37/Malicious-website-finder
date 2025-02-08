@@ -1,0 +1,6 @@
+node_modules
+malicious_url_dataset.csv
+test_dataset.csv    
+exe.txt
+app_logs.txt
+.env
