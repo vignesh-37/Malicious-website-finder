@@ -10,9 +10,11 @@ const app = express()
 dotenv.config()
 const PORT = process.env.PORT
 
+app.use(cors());
+
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors());
+
 
 app.use('/',router)
 

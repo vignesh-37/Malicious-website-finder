@@ -1,6 +1,8 @@
 node_modules
 malicious_url_dataset.csv
-test_dataset.csv    
+malicious_dataset.csv
+test_dataset.csv 
+best_model.pkl   
 exe.txt
 app_logs.txt
 .env
