@@ -89,13 +89,13 @@ export const checkURL = async (req, res) => {
         if (vtResult.malicious === 0 && vtResult.malicious < 2 ) {
             //mlPrediction = "benign";
         }
-        if(vtResult.malicious > 2){
+        if(vtResult.malicious ){
             //mlPrediction = "Malicious"
         }
         if(mlPrediction == "Phishing" && vtResult.malicious === 0){
             //mlPrediction = "benign"
         }
-
+        console.log(Whois,mlPrediction,gsbResult,vtResult)
         return res.status(200).json({
             url,
             whois : Whois,
@@ -103,6 +103,7 @@ export const checkURL = async (req, res) => {
             gsb_response: gsbResult,
             Virus_Total_response: vtResult
         });
+        
     } catch (error) {
         console.error("Error in website analysis:", error.message);
         return res.status(500).json({ error: "Error in website analysis" });
