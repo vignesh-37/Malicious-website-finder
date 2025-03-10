@@ -36,29 +36,63 @@
       </div>
     </main>
 
-    <!-- ✅ Overlap Window (With Two Close Buttons) ✅ -->
-    <div v-if="showResults" class="overlap-window">
-      <div class="overlap-content">
-        <!-- Close Button (Top-Right) -->
-        <button class="close-btn top-right" @click="closeResults">✖</button>
+   <!-- ✅ Overlap Window (With Two Close Buttons) ✅ -->
+<div v-if="showResults" class="overlap-window">
+  <div class="overlap-content">
+    <!-- Close Button (Top-Right) -->
+    <button class="close-btn top-right" @click="closeResults">✖</button>
 
-        <h3 class="scan-head">Scan Results</h3>
-        <h4><strong>URL:</strong>{{ url }}</h4>
-        <p><strong>ML Prediction:</strong> <span :class="mlClass">{{ scanResults.ml_prediction ??  0}}</span></p>
-        <!-- <p><strong>Google Safe Browsing:</strong> {{ scanResults.gsb_response }}</p> -->
-        <p><strong>VirusTotal Detection:</strong></p>
-        <ul>
-          <li>Malicious: {{ scanResults.virusTotal.malicious ??  0}}</li>
-          <li>Harmless: {{ scanResults.virusTotal.harmless ??  0}}</li>
-          <li>Undetected: {{ scanResults.virusTotal.undetecte ??  0}}</li>
-          <li>Harmless: {{ scanResults.virusTotal.harmless ??  0}}</li>
-        </ul>
+    <h2 class="scan-head">Scan Results</h2>
+    <h4><strong>URL:</strong>&nbsp;&nbsp; {{ url }}</h4>
 
+    <!-- ✅ ML Prediction -->
+    <p><strong>ML Prediction:&nbsp;&nbsp;</strong> <span :class="mlClass">{{ scanResults.ml_prediction ?? "No Response" }}</span></p>
+    <hr style="width: 80%;">
+    <!-- ✅ VirusTotal Detection -->
+    <span class="vt-result-head"><strong>VirusTotal Detection:</strong></span>
+    <ul class="vt-result">
+      <li>Malicious:&nbsp;&nbsp; {{ scanResults.virusTotal?.malicious ?? 0 }}</li>
+      <li>Suspicious:&nbsp;&nbsp; {{ scanResults.virusTotal?.suspicious ?? 0 }}</li>
+      <li>Undetected:&nbsp;&nbsp; {{ scanResults.virusTotal?.undetected ?? 0 }}</li>
+      <li>Harmless:&nbsp;&nbsp; {{ scanResults.virusTotal?.harmless ?? 0 }}</li>
+    </ul>
+    <hr style="width: 80%;">
+    <!-- ✅ WHOIS Information -->
+    <div class="whois-info">
+      <h4>WHOIS Information</h4>
+      <p><strong>Domain:</strong>&nbsp;&nbsp; {{ scanResults.whois?.domain || "Not available" }}</p>
+      <p><strong>Created Date:</strong> &nbsp;&nbsp;{{ scanResults.whois?.created_date || "Not available" }}</p>
+      <p><strong>Updated Date:</strong> &nbsp;&nbsp;{{ scanResults.whois?.updated_date || "Not available" }}</p>
+      <p><strong>Expiration Date:</strong>&nbsp;&nbsp; {{ scanResults.whois?.expires_date || "Not available" }}</p>
 
-        <!-- Close Button (Bottom) -->
-        <button class="close-btn bottom" @click="closeResults">Close</button>
-      </div>
+      <h4>Registrant Details</h4>
+      <p><strong>Organization:</strong>&nbsp;&nbsp; {{ scanResults.whois?.registrant?.organization || "Not available" }}</p>
+      <p><strong>Email:</strong> &nbsp;&nbsp;{{ scanResults.whois?.registrant?.contact_email || "Not available" }}</p>
+      <p><strong>Phone:</strong>&nbsp;&nbsp; {{ scanResults.whois?.registrant?.contact_phone || "Not available" }}</p>
+      <p><strong>Country:</strong>&nbsp;&nbsp; {{ scanResults.whois?.registrant?.country || "Not available" }}</p>
+
+      <h4>Administrative Contact</h4>
+      <p><strong>Email:</strong> &nbsp;&nbsp;{{ scanResults.whois?.administrative_contact || "Not available" }}</p>
+
+      <h4>Technical Contact</h4>
+      <p><strong>Email:</strong> &nbsp;&nbsp;{{ scanResults.whois?.technical_contact || "Not available" }}</p>
+
+      <h4>Name Servers</h4>
+      <ul class="vt-result">
+        <li v-for="server in scanResults.whois?.name_servers || []" :key="server">{{ server }}</li>
+      </ul>
     </div>
+
+    
+
+    <!-- ✅ Google Safe Browsing
+    <p><strong>Google Safe Browsing:</strong> {{ scanResults.gsb_response || "No Response" }}</p> -->
+
+    <!-- Close Button (Bottom) -->
+    <button class="close-btn bottom" @click="closeResults">Close</button>
+  </div>
+</div>
+
   </div>
 </template>
 
@@ -109,6 +143,7 @@ const scanUrl = async () => {
 
       store.dispatch("updateScanResults", response.data);
       scanResults.value = {
+        whois : response.data.whois,
         ml_prediction: response.data.ml_prediction,
         gsb_response: response.data.gsb_response,
         virusTotal: response.data.Virus_Total_response,
@@ -222,6 +257,10 @@ nav a:hover {
   color: red;
 }
 
+.main-content h2{
+  color: white;
+}
+
 /* Input */
 .input-container {
   position: relative;
@@ -277,7 +316,7 @@ button{  padding: 12px 24px;
 
 button:hover, button:focus {
   transform: scale(1.2);
-  animation: rgbGlow 2s infinite alternate;
+  animation: rgbGlow 0.8s infinite alternate;
 }
 
 @keyframes rgbGlow {
@@ -304,10 +343,11 @@ button:hover, button:focus {
   z-index: 1001;
 }
 
-.overlap-window p{
+.overlap-window p {
+  
   width: 100%;
   max-width: 100%;
-  margin-left: 20%;
+  margin-left: 0%;
   font-size: 1rem;
   margin: 2%;
   text-align: left;
@@ -315,21 +355,31 @@ button:hover, button:focus {
   
 
 }
+.overlap-content {
+  padding: 20px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  max-height: 100vh; /* Limit height so scrolling works */
+}
 
 .scan-head{
   color: #11ccec;
   font-size: 2rem;
 }
 
-.overlap-window ul li{
+.vt-result li{
   width: 100%;
-  max-width: 100%;
-  margin-left: 20%;
+  /* max-width: 100%; */
   font-size: 1rem;
   margin: 2%;
   text-align: left;
-  margin-left: 25%;
+  margin-left: 20%;
   list-style-type: none;
+}
+
+.vt-result-head{
+  margin-top: 5%;
+  text-align: center;
+  
 }
 
 
@@ -347,7 +397,7 @@ button:hover, button:focus {
 }
 
 .close-btn:hover {
-  background: darkred;
+  background: rgb(212, 111, 111);
 }
 
 /* Close Button (Top-Right) */

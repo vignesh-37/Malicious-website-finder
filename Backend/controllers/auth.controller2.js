@@ -36,9 +36,7 @@ export const checkURL = async (req, res) => {
         try {
             // ML Prediction
             const mlResponse = await axios.post("http://127.0.0.1:5000/predict", { url });
-            const { url: checkedUrl, prediction, whois } = mlResponse.data;
-            mlPrediction = prediction || "No Response" ;
-            // Whois = whois || "No Response";
+            mlPrediction = mlResponse.data.prediction || "No Response";
         } catch (error) {
             console.error("ML Prediction Error:", error.message);
         }
@@ -50,7 +48,9 @@ export const checkURL = async (req, res) => {
                 requestBody,
                 { headers: { "Content-Type": "application/json" } }
             );
-            gsbResult = gsbResponse.data && gsbResponse.data.matches ? "⚠️ Warning! The URL is unsafe" : "✅ The URL is safe!";
+            gsbResult = gsbResponse.data && gsbResponse.data.matches
+                ? "⚠️ Warning! The URL is unsafe"
+                : "✅ The URL is safe!";
         } catch (error) {
             console.error("Google Safe Browsing Error:", error.message);
         }
@@ -82,66 +82,74 @@ export const checkURL = async (req, res) => {
             } while (vtResultResponse.data.data.attributes.status !== "completed" && attempts < 5);
 
             vtResult = vtResultResponse.data.data.attributes.stats;
+            console.log(vtResult)
         } catch (error) {
             console.error("VirusTotal API Error:", error.message);
         }
 
-        //who is xml api call up
         try {
+            // Ensure URL is properly formatted
             let fullUrl = url;
-            if (!fullUrl) throw new Error('URL parameter is required');
-    
-            // Ensure the URL has a protocol, otherwise add "https://"
-            if (!fullUrl.startsWith('http://') && !fullUrl.startsWith('https://')) {
-                fullUrl = 'https://' + fullUrl;
+            if (!fullUrl.startsWith("http://") && !fullUrl.startsWith("https://")) {
+                fullUrl = "https://" + fullUrl;
             }
-    
+        
             // Extract domain from the URL
             let hostname = new URL(fullUrl).hostname;
-    
-            // Remove "www." if present
             if (hostname.startsWith("www.")) {
                 hostname = hostname.substring(4);
             }
-    
-            // Validate domain
-            if (!hostname) throw new Error('Invalid URL');
-    
+        
+            if (!hostname) throw new Error("Invalid URL");
+        
             // WHOIS API call
-            const apiKey = WHO_IS_XML_API_KEY;
-            const whoisUrl = `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${apiKey}&domainName=${hostname}&outputFormat=json`;
-    
-            const response_whois = await axios.get(whoisUrl)  || "No Result" ;
-    
-            // Send API response
-            // res.json(response.data);
-            console.log(response_whois)
-    
+            const whoisUrl = `https://www.whoisxmlapi.com/whoisserver/WhoisService?apiKey=${WHO_IS_XML_API_KEY}&domainName=${hostname}&outputFormat=json`;
+        
+            const response_whois = await axios.get(whoisUrl);
+            const whoisData = response_whois.data?.WhoisRecord || {};
+        
+            // Extract key details
+            Whois = {
+                domain: whoisData.domainName || "Unknown",
+                created_date: whoisData.createdDate || "Not available",
+                updated_date: whoisData.updatedDate || "Not available",
+                expires_date: whoisData.expiresDate || "Not available",
+                registrant: {
+                    organization: whoisData.registrant?.organization || "Not available",
+                    contact_email: whoisData.registrant?.email || "Not available",
+                    contact_phone: whoisData.registrant?.telephone || "Not available",
+                    country: whoisData.registrant?.country || "Not available",
+                },
+                administrative_contact: whoisData.administrativeContact?.email || "Not available",
+                technical_contact: whoisData.technicalContact?.email || "Not available",
+                name_servers: whoisData.nameServers?.hostNames || [],
+            };
         } catch (error) {
-            console.error('Error:', error.message);
-            // res.status(400).json({ error: error.message || 'Internal Server Error' });
+            console.error("WHOIS API Error:", error.message);
+            Whois = { error: "Failed to retrieve WHOIS data" };
         }
-    
+        
 
         // If Google Safe Browsing and VirusTotal detect nothing, set ML prediction to benign
-        if (vtResult.malicious === 0 && vtResult.malicious < 2 ) {
-            //mlPrediction = "benign";
+        if (vtResult.malicious === 0 && vtResult.malicious < 2) {
+            // mlPrediction = "benign";
         }
-        if(vtResult.malicious ){
-            //mlPrediction = "Malicious"
+        if (vtResult.malicious) {
+            // mlPrediction = "Malicious";
         }
-        if(mlPrediction == "Phishing" && vtResult.malicious === 0){
-            //mlPrediction = "benign"
+        if (mlPrediction === "Phishing" && vtResult.malicious === 0) {
+            // mlPrediction = "benign";
         }
-        console.log(Whois,mlPrediction,gsbResult,vtResult)
+
+        // ✅ Send final response (ensures only one response is sent)
         return res.status(200).json({
             url,
-            whois : response_whois,
+            whois: Whois,
             ml_prediction: mlPrediction,
             gsb_response: gsbResult,
             Virus_Total_response: vtResult
         });
-        
+
     } catch (error) {
         console.error("Error in website analysis:", error.message);
         return res.status(500).json({ error: "Error in website analysis" });

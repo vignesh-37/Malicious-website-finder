@@ -1,5 +1,5 @@
 import express from "express"
-import {checkURL} from "../controllers/auth.controller.js"
+import {checkURL} from "../controllers/auth.controller2.js"
 
 const router = express.Router()
 

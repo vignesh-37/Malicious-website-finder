@@ -188,7 +188,7 @@ button {
 
 button:hover, button:focus {
   transform: scale(1.2);
-  animation: rgbGlow 2s infinite alternate;
+  animation: rgbGlow 0.5s infinite alternate;
 }
 
 @keyframes rgbGlow {
